@@ -11,6 +11,9 @@ repositories {
 dependencies {
     compile project(':sdk')
     compile files('../libs/telegrambots-3.5-jar-with-dependencies.jar')
+    compile files('../libs/telegrambots-abilities-3.5-jar-with-dependencies.jar')
+    compile files('../libs/sqlite-jdbc-3.7.2.jar')
+
 
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: jacksonVersion
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion

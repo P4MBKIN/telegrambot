@@ -5,6 +5,7 @@ import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -16,8 +17,7 @@ import org.telegram.telegrambots.logging.BotLogger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Example extends TelegramLongPollingBot{
-    List<Long> arr = new ArrayList<>(0);
+public class Bot extends {
 
     @Override
     public String getBotUsername() {
