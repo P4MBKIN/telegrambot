@@ -5,7 +5,6 @@ import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -17,7 +16,7 @@ import org.telegram.telegrambots.logging.BotLogger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bot extends {
+public class Bot extends TelegramLongPollingBot{
 
     @Override
     public String getBotUsername() {
@@ -35,7 +34,6 @@ public class Bot extends {
 
         SendMessage snd = new SendMessage();
         snd.setChatId(update.getMessage().getChatId());
-        snd.setText("Привет мир!" + arr.size());
 
         try {
             execute(snd);
@@ -46,8 +44,6 @@ public class Bot extends {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (arr.indexOf(update.getMessage().getChatId()) == -1)
-            arr.add(update.getMessage().getChatId());
         System.out.println(update.getMessage().getText());
         sayHelloWorld(update);
         /*

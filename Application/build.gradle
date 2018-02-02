@@ -15,6 +15,8 @@ dependencies {
     compile files('../libs/sqlite-jdbc-3.7.2.jar')
 
 
+
+
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: jacksonVersion
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion

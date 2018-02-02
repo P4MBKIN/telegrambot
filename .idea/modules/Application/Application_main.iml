@@ -21,7 +21,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../../../libs/telegrambots-abilities-3.5-jar-with-dependencies" />
+          <root url="jar://$MODULE_DIR$/../../../libs/telegrambots-abilities-3.5-jar-with-dependencies.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -71,7 +71,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../../../libs/sqlite-jdbc-3.7.2" />
+          <root url="jar://$MODULE_DIR$/../../../libs/sqlite-jdbc-3.7.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
