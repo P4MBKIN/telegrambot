@@ -20,6 +20,7 @@ import java.util.Properties;
 /**
  * Created by Anton Tsivarev on 15.10.16.
  */
+//Pasha pidor
 public class Application {
 
     public static void main(String[] args) throws Exception {
