@@ -1,0 +1,34 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'application'
+
+mainClassName = "botbackend.Application"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':sdk')
+    compile files('../libs/telegrambots-3.5-jar-with-dependencies.jar')
+
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: jacksonVersion
+    compile group: 'com.google.guava', name: 'guava', version: guavaVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: jettyVersion
+
+    testCompile group: 'org.testng', name: 'testng', version: testngVersion
+}
+
+processResources {
+    eachFile { details ->
+        if (details.name.endsWith('.properties')) {
+            details.filter(ReplaceTokens, tokens: [
+                    'client.id'    : clientId,
+                    'servise.token': serviseToken,
+            ])
+        }
+    }
+}

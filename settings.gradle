@@ -1,0 +1,5 @@
+rootProject.name = 'telegrambot'
+include 'sdk'
+include 'Application'
+include 'libs'
+

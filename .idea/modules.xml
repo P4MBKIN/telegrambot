@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Application.iml" filepath="$PROJECT_DIR$/.idea/modules/Application.iml" group="Application" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Application/Application_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Application/Application_main.iml" group="Application" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Application/Application_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Application/Application_test.iml" group="Application" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libs/libs.iml" filepath="$PROJECT_DIR$/.idea/modules/libs/libs.iml" group="libs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libs/libs_main.iml" filepath="$PROJECT_DIR$/.idea/modules/libs/libs_main.iml" group="libs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libs/libs_test.iml" filepath="$PROJECT_DIR$/.idea/modules/libs/libs_test.iml" group="libs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sdk.iml" filepath="$PROJECT_DIR$/.idea/modules/sdk.iml" group="sdk" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sdk/sdk_main.iml" filepath="$PROJECT_DIR$/.idea/modules/sdk/sdk_main.iml" group="sdk" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sdk/sdk_test.iml" filepath="$PROJECT_DIR$/.idea/modules/sdk/sdk_test.iml" group="sdk" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/telegrambot.iml" filepath="$PROJECT_DIR$/.idea/modules/telegrambot.iml" />
+    </modules>
+  </component>
+</project>
