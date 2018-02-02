@@ -1,5 +1,6 @@
 package botbackend;
 
+import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -12,11 +13,19 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.LongPollingBot;
 import org.telegram.telegrambots.logging.BotLogger;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bot extends TelegramLongPollingBot{
+public class Bot extends AbilityBot{
+
+    @Override
+    public int creatorId(){
+        return 123213;
+    }
+
+    public Bot(){
+        super("531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM", "testbot");
+    }
 
     @Override
     public String getBotUsername() {
@@ -44,8 +53,15 @@ public class Bot extends TelegramLongPollingBot{
 
     @Override
     public void onUpdateReceived(Update update) {
-        System.out.println(update.getMessage().getText());
-        sayHelloWorld(update);
+        //System.out.println(update.getMessage().getText());
+        //sayHelloWorld(update);
+        try {
+            System.out.println(update.getMessage().getText());
+            DataBase.WriteDB(update);
+            DataBase.ReadDB();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
         /*
         Message msg = e.getMessage(); // Это нам понадобится
         String txt = msg.getText();

@@ -15,7 +15,7 @@ public class DataBase {
     {
         conn = null;
         Class.forName("org.sqlite.JDBC");
-        conn = DriverManager.getConnection("jdbc:sqlite:TEST1.s3db");
+        conn = DriverManager.getConnection("jdbc:sqlite:newbd.s3db");
 
         System.out.println("База Подключена!");
     }
@@ -38,7 +38,7 @@ public class DataBase {
             int tgid = update.getMessage().getChatId().intValue();
             if (name != null)
             {
-                if (statmt.execute("SELECT 'users' FROM 'tgid' WHERE 'tgid' = tgid LIMIT = 1);") != FALSE) {
+                if (statmt.execute("SELECT EXISTS (SELECT * FROM users WHERE 'tgid' = tgid LIMIT = 1);") == Boolean.FALSE) {
                     PreparedStatement st = conn.prepareStatement("INSERT INTO 'users' ('name', 'tgid') VALUES (?, ?)");
                     st.setString(1, name);
                     st.setInt(2, tgid);
