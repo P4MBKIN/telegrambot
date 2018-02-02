@@ -35,13 +35,14 @@ public class DataBase {
         try
         {
             String name = update.getMessage().getChat().getFirstName();
-            int tgid = update.getMessage().getChatId().intValue();
-            if (name != null)
+            Integer number = update.getMessage().getChatId().intValue();
+            if (name != null && number!=null)
             {
-                if (statmt.execute("SELECT EXISTS (SELECT * FROM users WHERE 'tgid' = tgid LIMIT = 1);") == Boolean.FALSE) {
+                System.out.println(name + " " + number);
+                if (statmt.execute("SELECT * FROM 'users' WHERE 'tgid' = '" + number + "'  LIMIT 1") != Boolean.FALSE) {
                     PreparedStatement st = conn.prepareStatement("INSERT INTO 'users' ('name', 'tgid') VALUES (?, ?)");
                     st.setString(1, name);
-                    st.setInt(2, tgid);
+                    st.setInt(2, number);
                 }
             }
         }catch (Exception ex){
@@ -60,7 +61,7 @@ public class DataBase {
         {
             int id = resSet.getInt("id");
             String  name = resSet.getString("name");
-            String  tgid = resSet.getString("tgid");
+            int  tgid = resSet.getInt("tgid");
             System.out.println( "ID = " + id );
             System.out.println( "name = " + name );
             System.out.println( "tgid = " + tgid );
