@@ -1,6 +1,5 @@
 package botbackend;
 import org.telegram.telegrambots.api.objects.Update;
-
 import java.sql.*;
 
 import static java.lang.Boolean.FALSE;
