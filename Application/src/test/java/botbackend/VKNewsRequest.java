@@ -67,20 +67,21 @@ public class VKNewsRequest {
                 time = post.getDate(); // Они держат время поста в int и лет через 15 он переполниться у них
                 List<WallpostAttachment> wallpostAttachments = post.getAttachments();
 
-                for(WallpostAttachment wallpostAttachment : wallpostAttachments){
-                    Link link = wallpostAttachment.getLink();
-                    if(link != null){
-                        links += link.getUrl() + "\n";
-                    }
-
-                    Photo photo = wallpostAttachment.getPhoto();
-                    if(photo != null){
-                        if(vkImages == null){
-                            vkImages = new ArrayList<>();
-                            vkImages.add(takeBestPicture(photo));
+                if (wallpostAttachments != null) {
+                    for (WallpostAttachment wallpostAttachment : wallpostAttachments) {
+                        Link link = wallpostAttachment.getLink();
+                        if (link != null) {
+                            links += link.getUrl() + "\n";
                         }
-                        else {
-                            vkImages.add(takeBestPicture(photo));
+
+                        Photo photo = wallpostAttachment.getPhoto();
+                        if (photo != null) {
+                            if (vkImages == null) {
+                                vkImages = new ArrayList<>();
+                                vkImages.add(takeBestPicture(photo));
+                            } else {
+                                vkImages.add(takeBestPicture(photo));
+                            }
                         }
                     }
                 }
