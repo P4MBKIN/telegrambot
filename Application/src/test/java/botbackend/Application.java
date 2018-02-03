@@ -30,7 +30,8 @@ public class Application {
     public static void main(String[] args) throws Exception {
         VKNewsRequest tmp = new VKNewsRequest();
 
-        ArrayList<News> allNews = tmp.getVKNews(VKNames.TEST_GROUP, 100, 10);
+        ArrayList<News> allNews = tmp.getVKNews(VKNames.TEST_GROUP, 100, 2);
+        System.out.println(allNews.size() + "size");
         for(int i = 0; i < allNews.size(); i++){
             allNews.get(i).writeNews("4CH"+ (i+1), "");
         }
@@ -39,9 +40,11 @@ public class Application {
         DataBase.Conn();
         DataBase.CreateDB();
         TelegramBotsApi botsApi = new TelegramBotsApi();
-
+        Bot bot = new Bot();
         try {
-            botsApi.registerBot(new Bot());
+            botsApi.registerBot(bot);
+            bot.UpdateNews(allNews);
+
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

@@ -4,6 +4,7 @@ import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
@@ -13,6 +14,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.LongPollingBot;
 import org.telegram.telegrambots.logging.BotLogger;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +29,35 @@ public class Bot extends AbilityBot{
     @Override
     public int creatorId(){
         return 123213;
+    }
+
+    public void UpdateNews(ArrayList<News> news) throws Exception{
+        System.out.println("Inmethod");
+        List<Integer> ids = DataBase.getAllChatId();
+        System.out.println(ids.size());
+        System.out.println("newsize" + news.size());
+        for(int i = 0; i < ids.size(); i++)
+        {
+            for(int j = 0; j < news.size(); j++)
+            {
+                System.out.println(news.size() + "allo");
+                try {
+                    BufferedImage img = news.get(j).getImage();
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ImageIO.write(img, "jpg", os);
+                    InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+                    SendPhoto photo = new SendPhoto();
+                    photo.setChatId(ids.get(i).longValue());
+                    photo.setNewPhoto("newnews", is);
+                    photo.setCaption(news.get(j).getText());
+                    sendPhoto(photo);
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        }
+
     }
 
     public Bot(){

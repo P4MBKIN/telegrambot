@@ -1,6 +1,8 @@
 package botbackend;
 import org.telegram.telegrambots.api.objects.Update;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Boolean.FALSE;
 
@@ -24,9 +26,21 @@ public class DataBase {
     public static void CreateDB() throws ClassNotFoundException, SQLException
     {
         statmt = conn.createStatement();
-        statmt.execute("CREATE TABLE if not exists 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text, 'tgid' INT);");
+        statmt.execute("CREATE TABLE if not exists 'users' ('id' INTEGER, 'name' text, 'tgid' INT PRIMARY KEY);");
 
         System.out.println("Таблица создана или уже существует.");
+    }
+
+    public static List<Integer> getAllChatId() throws Exception{
+        List<Integer> ids = new ArrayList<>(0);
+        resSet = statmt.executeQuery("SELECT * FROM users");
+        while(resSet.next())
+        {
+            int  tgid = resSet.getInt("tgid");
+            System.out.println(tgid + "tgid");
+            ids.add(tgid);
+        }
+        return ids;
     }
 
     // --------Заполнение таблицы--------
@@ -38,12 +52,12 @@ public class DataBase {
             Integer number = update.getMessage().getChatId().intValue();
             if (name != null && number!=null)
             {
-                System.out.println(name + " " + number);
-                if (statmt.execute("SELECT * FROM 'users' WHERE 'tgid' = '" + number + "'  LIMIT 1") != Boolean.FALSE) {
-                    PreparedStatement st = conn.prepareStatement("INSERT INTO 'users' ('name', 'tgid') VALUES (?, ?)");
-                    st.setString(1, name);
-                    st.setInt(2, number);
-                }
+                System.out.println("what" + statmt.execute("SELECT EXISTS(SELECT * FROM 'users' WHERE 'tgid' = '" + number + "' LIMIT 1);"));
+                //if (statmt.execute("SELECT EXISTS(SELECT * FROM 'users' WHERE 'tgid' = '\" + number + \"' LIMIT 1);") == Boolean.TRUE) {
+                    statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name +"','" + number +"')");
+                    //st.setString(1, name);
+                    //st.setInt(2, number);
+
             }
         }catch (Exception ex){
             ex.printStackTrace();
