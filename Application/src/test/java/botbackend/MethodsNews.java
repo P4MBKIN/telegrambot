@@ -54,7 +54,8 @@ public class MethodsNews {
                                                  String text, Color color){
 
         BufferedImage tmp = new BufferedImage(1,1,BufferedImage.TYPE_3BYTE_BGR);
-        Font font = new Font("Pragmatica", Font.PLAIN, 16);
+        // Font font = new Font("Pragmatica", Font.PLAIN, 16);
+        Font font = new Font("Tahoma", Font.PLAIN, 25);
         Graphics2D g = tmp.createGraphics();
         g.setColor(Color.WHITE);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -131,7 +132,7 @@ public class MethodsNews {
         return result;
     }
 
-    private static BufferedImage deepCopy(BufferedImage bi){
+    public static BufferedImage deepCopy(BufferedImage bi){
         ColorModel cm = bi.getColorModel();
         boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
         WritableRaster raster = bi.copyData(null);

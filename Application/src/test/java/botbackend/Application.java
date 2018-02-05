@@ -31,7 +31,7 @@ public class Application {
     public static void main(String[] args) throws Exception {
         VKNewsRequest tmp = new VKNewsRequest();
 
-        ArrayList<News> allNews = tmp.getVKNews(VKNames.TEST_GROUP, 100, 19);
+        ArrayList<News> allNews = tmp.getVKNews(VKNames.NAUKA_I_TECHNICA, 100, 19);
         System.out.println(allNews.size() + "size");
         for(int i = 0; i < allNews.size(); i++){
             allNews.get(i).writeNews("4CH"+ (i+1), "");
