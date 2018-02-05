@@ -7,18 +7,30 @@ import java.io.*;
 import java.util.Date;
 
 public class News {
+    private String linkPost;
     private String text;
     private BufferedImage image;
     private BufferedImage allNewsPicture;
     private int time;
     private String links;
 
-    public News(String Text, BufferedImage Image, String Links, int Time){
+    public News(String LinkPost, String Text, BufferedImage Image, String Links, int Time){
+        linkPost = LinkPost;
         text = Text;
         image = Image;
         links = Links;
         time = Time;
-        allNewsPicture = MethodsNews.addTextToPicture(Image, Text, Color.BLACK);
+        if(Text.isEmpty()){
+            allNewsPicture = Image;
+        }
+        else {
+            allNewsPicture = MethodsNews.addTextToPicture(Image, Text, Color.BLACK);
+        }
+
+    }
+
+    public String getLinkPost() {
+        return linkPost;
     }
 
     public String getText(){
@@ -48,6 +60,7 @@ public class News {
         if(image != null)
             ImageIO.write(image, "jpg",new File(path + name + ".jpg"));
         PrintWriter writer = new PrintWriter(path + name +".txt", "UTF-8");
+        writer.println(linkPost + "\n");
         writer.println(new Date(time*1000) + "\n");
         writer.println(text);
         writer.println(links);

@@ -1,19 +1,34 @@
 package botbackend;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import javafx.beans.binding.ListBinding;
+import javafx.collections.ObservableList;
+import org.jetbrains.annotations.NotNull;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.*;
 import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.api.methods.send.SendVideoNote;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
+import org.telegram.telegrambots.api.objects.games.CallbackGame;
+import org.telegram.telegrambots.api.objects.inlinequery.InlineQuery;
+import org.telegram.telegrambots.api.objects.replykeyboard.ForceReplyKeyboard;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.exceptions.TelegramApiValidationException;
 import org.telegram.telegrambots.generics.LongPollingBot;
 import org.telegram.telegrambots.logging.BotLogger;
 
@@ -23,8 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
@@ -55,9 +69,10 @@ public class Bot extends AbilityBot{
                     SendPhoto photo = new SendPhoto();
                     photo.setChatId(ids.get(i).longValue());
                     photo.setNewPhoto("newnews", is);
+                    photo.setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
                     //photo.setCaption(news.get(j).getText());
                     System.out.println(news.get(j).getLinks() + "link");
-                    photo.setCaption(news.get(j).getLinks());
+                    //photo.setCaption(news.get(j).getLinks());
                     sendPhoto(photo);
                 }catch (Exception ex){
                     ex.printStackTrace();
@@ -67,42 +82,108 @@ public class Bot extends AbilityBot{
 
     }
 
-    public Ability sayHelloWorld() {
-        return Ability
-                .builder()
-                .name("hello")
-                .info("says hello world!")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> silent.send("Hello world!", ctx.chatId()))
+    InlineKeyboardMarkup createKeyboard(String link){
+        InlineKeyboardMarkup mark = new InlineKeyboardMarkup();
+
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardButton buta = new InlineKeyboardButton();
+        buta.setText("Ссылочка");
+        buta.setUrl(link);
+        buttons.add(buta);
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        list.add(buttons);
+        mark.setKeyboard(list);
+        return mark;
+    }
+
+    public Ability hello() {
+        return Ability.builder()
+                .name("buy") // Name and command (/hello)
+                .info("Says hello world!") // Necessary if you want it to be reported via /commands
+                .privacy(PUBLIC)  // Choose from Privacy Class (Public, Admin, Creator)
+                .locality(ALL) // Choose from Locality enum Class (User, Group, PUBLIC)
+                .input(0) // Arguments required for command (0 for ignore)
+                .action(ctx -> {
+                    System.out.println("ABILITY");
+                    try {
+                        System.out.println("wtfwtf");
+                        sender.execute(createMess(ctx.chatId(), "Привет в ответ"));
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                })
                 .build();
+    }
+
+    SendMessage createMess(Long chatid, String text){
+        SendMessage a = new SendMessage()
+                .setChatId(chatid)
+                .setText(text);
+        try {
+            execute(a);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return a;
     }
 
     public Bot(){
         super("531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM", "testbot");
     }
 
-  /*  public void sayHelloWorld(Update update) {
-        if (!update.hasMessage() || !update.getMessage().isUserMessage() || !update.getMessage().hasText() || update.getMessage().getText().isEmpty())
-            return;
-        User maybeAdmin = update.getMessage().getFrom();
-
-
-        SendMessage snd = new SendMessage();
-        snd.setChatId(update.getMessage().getChatId());
-
-        try {
-            execute(snd);
-        } catch (TelegramApiException e) {
-            BotLogger.error("Could not send message", "waat", e);
-        }
-    }*/
-
     @Override
     public void onUpdateReceived(Update update) {
+
+        if(update.hasCallbackQuery()){
+            System.out.println("it has callbackquery");
+            SendMessage mess = new SendMessage()
+                    .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                    .setText("Пошел нахуй Алеша" + update.getCallbackQuery().getData());
+            try {
+                execute(mess);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        else
+        {
+            SendMessage message = new SendMessage();
+            InlineKeyboardMarkup mark = new InlineKeyboardMarkup();
+
+            List<InlineKeyboardButton> buttons = new ArrayList<>();
+            InlineKeyboardButton buta = new InlineKeyboardButton();
+            buta.setText("Да");
+            buta.setCallbackData("yes");
+            buttons.add(buta);
+            InlineKeyboardButton buta1 = new InlineKeyboardButton();
+            buta1.setText("Возможно");
+            buta1.setCallbackData("maybe");
+            buttons.add(buta1);
+            InlineKeyboardButton buta2 = new InlineKeyboardButton();
+            buta2.setText("Нет");
+            buta2.setCallbackData("no");
+
+            buta2.setCallbackGame(new CallbackGame());
+            buttons.add(buta2);
+            //but.add(buta);
+
+            List<List<InlineKeyboardButton>> list = new ArrayList<>();
+            list.add(buttons);
+            mark.setKeyboard(list);
+            // Add it to the message
+            message.setReplyMarkup(mark);
+            message.setText("Нравится ли вам спорт?");
+            message.setChatId(update.getMessage().getChatId());
+            try{
+                execute(message);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+            System.out.println();
+        }
         //System.out.println(update.getMessage().getText());
         //sayHelloWorld(update);
-        try {
+        /*try {
 
             System.out.println(update.getMessage().getText());
             DataBase.WriteDB(update);
