@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import javax.xml.crypto.Data;
@@ -30,7 +31,7 @@ public class Application {
     public static void main(String[] args) throws Exception {
         VKNewsRequest tmp = new VKNewsRequest();
 
-        ArrayList<News> allNews = tmp.getVKNews(VKNames.TEST_GROUP, 100, 2);
+        ArrayList<News> allNews = tmp.getVKNews(VKNames.TEST_GROUP, 100, 0);
         System.out.println(allNews.size() + "size");
         for(int i = 0; i < allNews.size(); i++){
             allNews.get(i).writeNews("4CH"+ (i+1), "");
@@ -44,6 +45,7 @@ public class Application {
         try {
             botsApi.registerBot(bot);
             bot.UpdateNews(allNews);
+
 
         } catch (TelegramApiException e) {
             e.printStackTrace();

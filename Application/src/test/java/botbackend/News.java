@@ -1,6 +1,7 @@
 package botbackend;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.Date;
 public class News {
     private String text;
     private BufferedImage image;
+    private BufferedImage allNewsPicture;
     private int time;
     private String links;
 
@@ -16,6 +18,7 @@ public class News {
         image = Image;
         links = Links;
         time = Time;
+        allNewsPicture = MethodsNews.addTextToPicture(Image, Text, Color.BLACK);
     }
 
     public String getText(){
@@ -34,7 +37,14 @@ public class News {
         return links;
     }
 
+    public BufferedImage getAllNewsPicture() {
+        return allNewsPicture;
+    }
+
     public void writeNews(String name, String path) throws IOException{
+        if(allNewsPicture != null){
+            ImageIO.write(allNewsPicture, "jpg",new File(path + name + "ALL" + ".jpg"));
+        }
         if(image != null)
             ImageIO.write(image, "jpg",new File(path + name + ".jpg"));
         PrintWriter writer = new PrintWriter(path + name +".txt", "UTF-8");

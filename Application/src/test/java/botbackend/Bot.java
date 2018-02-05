@@ -1,6 +1,8 @@
 package botbackend;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
+import org.telegram.abilitybots.*;
+import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -24,6 +26,9 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.telegram.abilitybots.api.objects.Locality.ALL;
+import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
+
 public class Bot extends AbilityBot{
 
     @Override
@@ -42,7 +47,7 @@ public class Bot extends AbilityBot{
             {
                 System.out.println(news.size() + "allo");
                 try {
-                    BufferedImage img = news.get(j).getImage();
+                    BufferedImage img = news.get(j).getAllNewsPicture();
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
                     ImageIO.write(img, "jpg", os);
                     InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -50,7 +55,9 @@ public class Bot extends AbilityBot{
                     SendPhoto photo = new SendPhoto();
                     photo.setChatId(ids.get(i).longValue());
                     photo.setNewPhoto("newnews", is);
-                    photo.setCaption(news.get(j).getText());
+                    //photo.setCaption(news.get(j).getText());
+                    System.out.println(news.get(j).getLinks() + "link");
+                    photo.setCaption(news.get(j).getLinks());
                     sendPhoto(photo);
                 }catch (Exception ex){
                     ex.printStackTrace();
@@ -60,23 +67,26 @@ public class Bot extends AbilityBot{
 
     }
 
+    public Ability sayHelloWorld() {
+        return Ability
+                .builder()
+                .name("hello")
+                .info("says hello world!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> silent.send("Hello world!", ctx.chatId()))
+                .build();
+    }
+
     public Bot(){
         super("531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM", "testbot");
     }
 
-    @Override
-    public String getBotUsername() {
-        return "AntiHeapBot";
-        //возвращаем юзера
-    }
-
-    public void sayHelloWorld(Update update) {
+  /*  public void sayHelloWorld(Update update) {
         if (!update.hasMessage() || !update.getMessage().isUserMessage() || !update.getMessage().hasText() || update.getMessage().getText().isEmpty())
             return;
         User maybeAdmin = update.getMessage().getFrom();
-       /* Query DB for if the user is an admin, can be SQL, Reddis, Ignite, etc...
-          If user is not an admin, then return here.
-       */
+
 
         SendMessage snd = new SendMessage();
         snd.setChatId(update.getMessage().getChatId());
@@ -86,13 +96,14 @@ public class Bot extends AbilityBot{
         } catch (TelegramApiException e) {
             BotLogger.error("Could not send message", "waat", e);
         }
-    }
+    }*/
 
     @Override
     public void onUpdateReceived(Update update) {
         //System.out.println(update.getMessage().getText());
         //sayHelloWorld(update);
         try {
+
             System.out.println(update.getMessage().getText());
             DataBase.WriteDB(update);
             DataBase.ReadDB();
@@ -147,23 +158,4 @@ public class Bot extends AbilityBot{
             }
         }*/
     }
-
-    @Override
-    public String getBotToken() {
-        return "531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM";
-        //Токен бота
-    }
-
-    @SuppressWarnings("deprecation") // Означает то, что в новых версиях метод уберут или заменят
-    private void sendMsg(Message msg, String text) {
-        SendMessage s = new SendMessage();
-        s.setChatId(msg.getChatId()); // Боту может писать не один человек, и поэтому чтобы отправить сообщение, грубо говоря нужно узнать куда его отправлять
-        s.setText(text);
-        try { //Чтобы не крашнулась программа при вылете Exception
-            sendMessage(s);
-        } catch (TelegramApiException e){
-            e.printStackTrace();
-        }
-    }
-
 }
