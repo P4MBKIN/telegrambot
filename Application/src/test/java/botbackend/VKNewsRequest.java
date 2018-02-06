@@ -50,6 +50,10 @@ public class VKNewsRequest {
     public ArrayList<News> getVKNews(VKNames vkNames, int percentzip, int maxcount) throws Exception{
         ArrayList<News> result = new ArrayList<>();
 
+        if(maxcount <= 0){
+            return result;
+        }
+
         List<WallPostFull> list;
         list = vk.wall().get(serviceActor).
                 ownerId(-vkNames.ID()).
@@ -58,6 +62,8 @@ public class VKNewsRequest {
                 execute().getItems();
         for(WallPostFull post : list){
             if(post.getDate() > lastTime.get(vkNames)){
+                String linkPost = "https://vk.com/wall-" +
+                        (-post.getOwnerId()) + "_" + post.getId();
                 String text;
                 Integer time;
                 String links = "";
@@ -67,27 +73,29 @@ public class VKNewsRequest {
                 time = post.getDate(); // Они держат время поста в int и лет через 15 он переполниться у них
                 List<WallpostAttachment> wallpostAttachments = post.getAttachments();
 
-                for(WallpostAttachment wallpostAttachment : wallpostAttachments){
-                    Link link = wallpostAttachment.getLink();
-                    if(link != null){
-                        links += link.getUrl() + "\n";
-                    }
+                if( wallpostAttachments != null) {
 
-                    Photo photo = wallpostAttachment.getPhoto();
-                    if(photo != null){
-                        if(vkImages == null){
-                            vkImages = new ArrayList<>();
-                            vkImages.add(takeBestPicture(photo));
+                    for (WallpostAttachment wallpostAttachment : wallpostAttachments) {
+                        Link link = wallpostAttachment.getLink();
+                        if (link != null) {
+                            links += link.getUrl() + "\n";
                         }
-                        else {
-                            vkImages.add(takeBestPicture(photo));
+
+                        Photo photo = wallpostAttachment.getPhoto();
+                        if (photo != null) {
+                            if (vkImages == null) {
+                                vkImages = new ArrayList<>();
+                                vkImages.add(takeBestPicture(photo));
+                            } else {
+                                vkImages.add(takeBestPicture(photo));
+                            }
                         }
                     }
+                    if (vkImages != null) {
+                        image = MethodsNews.createBigPicture(vkImages);
+                    }
                 }
-                if(vkImages != null){
-                    image = MethodsNews.createBigPicture(vkImages);
-                }
-                result.add(new News(text, image, links, time));
+                result.add(new News(linkPost, text, image, links, time));
             }
         }
         return result;
