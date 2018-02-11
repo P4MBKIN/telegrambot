@@ -7,6 +7,7 @@ import com.vk.api.sdk.objects.base.Link;
 import com.vk.api.sdk.objects.photos.Photo;
 import com.vk.api.sdk.objects.wall.WallPostFull;
 import com.vk.api.sdk.objects.wall.WallpostAttachment;
+import com.vk.api.sdk.queries.users.UserField;
 import com.vk.api.sdk.queries.wall.WallGetFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,6 @@ public class VKNewsRequest {
                 Integer time;
                 String links = "";
                 ArrayList<BufferedImage> vkImages = null;
-                BufferedImage image = null;
                 text = post.getText();
                 time = post.getDate(); // Они держат время поста в int и лет через 15 он переполниться у них
                 List<WallpostAttachment> wallpostAttachments = post.getAttachments();
@@ -91,13 +91,20 @@ public class VKNewsRequest {
                             }
                         }
                     }
-                    if (vkImages != null) {
-                        image = MethodsNews.createBigPicture(vkImages);
-                    }
                 }
-                result.add(new News(linkPost, text, image, links, time));
+                result.add(new News(linkPost, text, vkImages, links, time));
             }
         }
+        for(int i = 0; i < result.size(); i++){
+            Thread thread = result.get(i);
+            thread.start();
+        }
+
+        for(int i = 0; i < result.size(); i++){
+            Thread thread = result.get(i);
+            thread.join();
+        }
+
         return result;
     }
 
