@@ -45,6 +45,7 @@ import java.nio.Buffer;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static botbackend.VKNames.*;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
@@ -90,6 +91,27 @@ public class Bot extends AbilityBot{
 
     }
 
+    public void UpdateNewsToChatId(ArrayList<News> news, Long chatId) {
+        for (int j = 0; j < news.size(); j++) {
+            System.out.println(news.size() + "allo");
+            try {
+                BufferedImage img = news.get(j).getAllNewsPicture();
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(img, "jpg", os);
+                InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+                SendPhoto photo = new SendPhoto();
+                photo.setChatId(chatId);
+                photo.setNewPhoto("newnews", is);
+                photo.setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
+                System.out.println(news.get(j).getLinks() + "link");
+                sendPhoto(photo);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     InlineKeyboardMarkup createKeyboard(String link){
         InlineKeyboardMarkup mark = new InlineKeyboardMarkup();
 
@@ -106,13 +128,13 @@ public class Bot extends AbilityBot{
 
     public Bot(){
         super("531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM", "testbot");
-        Question.add("Нравится ли вам активный вид спорта0");
-        Question.add("Интересуетесь ли вы политикой1");
-        Question.add("Интересуетесь ли вы политикой2");
-        Question.add("Интересуетесь ли вы политикой3");
-        Question.add("Интересуетесь ли вы политикой4");
-        Question.add("Интересуетесь ли вы политикой5");
-        Question.add("Интересуетесь ли вы политикой6");
+        Question.add("Интересуетесь ли вы политикой?");
+        Question.add("Нравится ли вам кино?");
+        Question.add("Нравится ли вам наука и техника?");
+        Question.add("Интересуетесь ли вы бизнесом и компаниями?");
+        Question.add("Интересуетесь ли вы музыкой?");
+        Question.add("Интересуетесь ли вы путешествиями?");
+        Question.add("Интересуетесь ли вы спортом?");
 
     }
 
@@ -154,6 +176,11 @@ public class Bot extends AbilityBot{
     public void onUpdateReceived(Update update) {
 
         if(update.hasCallbackQuery()){
+            try {
+                DataBase.ReadDB();
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
             int number = Integer.parseInt(update.getCallbackQuery().getData().split(" ")[1]);
             try {
                 DataBase.setInfoIntoDatabase(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery());
@@ -164,6 +191,8 @@ public class Bot extends AbilityBot{
                 setOproc(update.getCallbackQuery().getMessage().getChatId(), number+1);
             else
             {
+
+
                 SendMessage message = new SendMessage();
                 message.setText("Настройки");
                 message.setChatId(update.getCallbackQuery().getMessage().getChatId());
@@ -203,39 +232,38 @@ public class Bot extends AbilityBot{
         }
         else {
             try {
-                if (DataBase.getAllChatId().indexOf(update.getMessage().getChatId()) == -1) {
-                    setOproc(update.getMessage().getChatId(), 0);
-                    DataBase.WriteDB(update);
+                    if (update.getMessage().getText().equals("Update news")) {
+                        VKNewsRequest tmp = new VKNewsRequest();
+                        try {
+                            VKNames[] arr = {POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS,
+                                    MUSICA, PUTESHESTVIJA, SPORT};
+                            String[] interests = DataBase.getInterest(update.getMessage().getChatId()).split(";");
+                            ArrayList<News> news = new ArrayList<>(0);
+                            System.out.println("size" + interests.length);
+                            for(int i = 0; i < interests.length;i++)
+                                if (interests[i].equals("1"))
+                                    news.addAll(tmp.getVKNews(arr[i], 100, 4));
+                            else
+                                if (interests[i].equals("0"))
+                                    news.addAll(tmp.getVKNews(arr[i], 100, 2));
+                            UpdateNewsToChatId(news, update.getMessage().getChatId());
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    } else
+                        if(update.getMessage().getText().equals("settings") || update.getMessage().getText().equals("rate us")){}
+                        else{
+                        try {
+                            if (DataBase.getAllChatId().indexOf(update.getMessage().getChatId()) == -1) {
+                                setOproc(update.getMessage().getChatId(), 0);
+                                DataBase.WriteDB(update);
+                            }
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }} catch(Exception ex){
+                    ex.printStackTrace();
                 }
-                SendMessage message = new SendMessage();
-                message.setText("Настройки");
-                message.setChatId(update.getCallbackQuery().getMessage().getChatId());
-                ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-                replyKeyboardMarkup.setSelective(true);
-                replyKeyboardMarkup.setResizeKeyboard(true);
-                replyKeyboardMarkup.setOneTimeKeyboard(false);
-
-                List<KeyboardRow> keyboard = new ArrayList<>();
-                KeyboardRow keyboardFirstRow = new KeyboardRow();
-                keyboardFirstRow.add("general command");
-                keyboardFirstRow.add("forecast command");
-                KeyboardRow keyboardSecondRow = new KeyboardRow();
-                keyboardSecondRow.add("settings");
-                keyboardSecondRow.add("rate us");
-                keyboard.add(keyboardFirstRow);
-                keyboard.add(keyboardSecondRow);
-                replyKeyboardMarkup.setKeyboard(keyboard);
-                message.setReplyMarkup(replyKeyboardMarkup);
-
-                try {
-                    // Send the message
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }
     }
 }

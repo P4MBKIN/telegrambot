@@ -27,7 +27,7 @@ public class DataBase {
     public static void CreateDB() throws ClassNotFoundException, SQLException
     {
         statmt = conn.createStatement();
-        statmt.execute("CREATE TABLE if not exists 'users' ('name' text, 'tgid' INT PRIMARY KEY, 'resultsofoproc' text);");
+        statmt.execute("CREATE TABLE if not exists 'users' ('name' text, 'tgid' INT PRIMARY KEY);");
 
         System.out.println("Таблица создана или уже существует.");
     }
@@ -50,11 +50,10 @@ public class DataBase {
     {
         try
         {
-            String name = update.getMessage().getChat().getFirstName();
+            String name = "";
             Integer number = update.getMessage().getChatId().intValue();
-            String oproc = "";
             if (name != null && number!=null)
-                    statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid', 'resultofoproc') VALUES ('" + name +"','" + number + "','" + oproc +"')");
+                    statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name + "','" + number +"')");
         }catch (Exception ex){
             ex.printStackTrace();
         }
@@ -66,22 +65,21 @@ public class DataBase {
         System.out.println("allo");
         resSet = statmt.executeQuery("SELECT * FROM users");
         int id = -1;
-        String name;
-        String oproc = "";
+        String name = "";
         while(resSet.next() && id != chatId)
         {
             id = resSet.getInt("tgid");
-            oproc = resSet.getString("resultsofoproc");
+            name = resSet.getString("name");
         }
         switch (data.getData().split(" ")[0]) {
             case "No":
-                oproc += ";-1";
+                name += ";-1";
                 break;
             case "Yes":
-                oproc += ";1";
+                name += ";1";
                 break;
             case "Maybe":
-                oproc += ";0";
+                name += ";0";
                 break;
                 default:
                     System.out.println("Unhandle exc");
@@ -90,16 +88,10 @@ public class DataBase {
         }
         try
         {
-            name = data.getFrom().getFirstName();
             Integer number = chatId.intValue();
             if (name != null && number!=null)
             {
-                System.out.println("what" + statmt.execute("SELECT EXISTS(SELECT * FROM 'users' WHERE 'tgid' = '" + number + "' LIMIT 1);"));
-                //if (statmt.execute("SELECT EXISTS(SELECT * FROM 'users' WHERE 'tgid' = '\" + number + \"' LIMIT 1);") == Boolean.TRUE) {
                 statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name +"','" + number +"')");
-                //st.setString(1, name);
-                //st.setInt(2, number);
-
             }
         }catch (Exception ex){
             ex.printStackTrace();
@@ -107,6 +99,18 @@ public class DataBase {
 
     }
 
+    public static String getInterest(Long chatId) throws Exception{
+        resSet = statmt.executeQuery("SELECT * FROM users");
+        String name = "";
+        while(resSet.next())
+        {
+            name = resSet.getString("name");
+            int tgid = resSet.getInt("tgid");
+            if (tgid == chatId)
+                break;
+        }
+        return name;
+    }
 
     // -------- Вывод таблицы--------
     public static void ReadDB() throws ClassNotFoundException, SQLException
@@ -115,10 +119,8 @@ public class DataBase {
 
         while(resSet.next())
         {
-            int id = resSet.getInt("id");
             String  name = resSet.getString("name");
             int  tgid = resSet.getInt("tgid");
-            System.out.println( "ID = " + id );
             System.out.println( "name = " + name );
             System.out.println( "tgid = " + tgid );
             System.out.println();
