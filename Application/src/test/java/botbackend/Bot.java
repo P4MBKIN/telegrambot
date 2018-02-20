@@ -1,5 +1,6 @@
 package botbackend;
 
+import javafx.util.Pair;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
@@ -9,8 +10,6 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.generics.LongPollingBot;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -22,6 +21,8 @@ import static botbackend.VKNames.*;
 public class Bot extends TelegramLongPollingBot{
     List<String> Question = new ArrayList<>();
     Hashtable<Long, VKNewsRequest> usersChoice = new Hashtable<>(0);
+    Hashtable<Long, Integer> userChoicenumber = new Hashtable<>(0);
+    VKNames[] arr = {POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS, MUSICA, PUTESHESTVIJA, SPORT};
 
     @Override
     public String getBotUsername() {
@@ -165,16 +166,18 @@ public class Bot extends TelegramLongPollingBot{
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        if (number < Question.size()-1)
-            setQues(update.getCallbackQuery().getMessage().getChatId(), number+1);
+        if (number <= userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()) && number < Question.size()) {
+            userChoicenumber.put(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId())+1);
+            setQues(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()));
+        }
         else {
-            SendMessage message = new SendMessage();
-            message.setText("Настройки");
-            message.setChatId(update.getCallbackQuery().getMessage().getChatId());
-            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-            replyKeyboardMarkup.setSelective(true);
-            replyKeyboardMarkup.setResizeKeyboard(true);
-            replyKeyboardMarkup.setOneTimeKeyboard(false);
+            SendMessage message = new SendMessage()
+                    .setText("Настройки")
+                    .setChatId(update.getCallbackQuery().getMessage().getChatId());
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup()
+                    .setSelective(true)
+                    .setResizeKeyboard(true)
+                    .setOneTimeKeyboard(false);
 
             List<KeyboardRow> keyboard = new ArrayList<>();
             KeyboardRow keyboardFirstRow = new KeyboardRow();
@@ -203,27 +206,25 @@ public class Bot extends TelegramLongPollingBot{
             if (update.getMessage().getText().equals("Обновить новости")) {
                 VKNewsRequest tmp = usersChoice.get(update.getMessage().getChatId());
                 try {
-                    VKNames[] arr = {POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS,
-                            MUSICA, PUTESHESTVIJA, SPORT};
                     String[] interests = DataBase.getInterest(update.getMessage().getChatId()).split(";");
                     ArrayList<News> news = new ArrayList<>(0);
-                    System.out.println("size" + interests.length);
                     for(int i = 0; i < interests.length-1;i++)
                         if (interests[i].equals("1"))
                             news.addAll(tmp.getVKNews(arr[i], 100, 4));
                         else
-                        if (interests[i].equals("0"))
-                            news.addAll(tmp.getVKNews(arr[i], 100, 2));
+                            if (interests[i].equals("0"))
+                                news.addAll(tmp.getVKNews(arr[i], 100, 2));
                     UpdateNewsToChatId(news, update.getMessage().getChatId());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             } else
-            if(update.getMessage().getText().equals("settings") || update.getMessage().getText().equals("rate us")){}
+            if(update.getMessage().getText().equals("settings")){}
             else{
                 try {
                     if (DataBase.getAllChatId().indexOf(update.getMessage().getChatId()) == -1) {
                         usersChoice.put(update.getMessage().getChatId(), new VKNewsRequest());
+                        userChoicenumber.put(update.getMessage().getChatId(), 0);
                         setQues(update.getMessage().getChatId(), 0);
                         DataBase.WriteDB(update);
                     }
