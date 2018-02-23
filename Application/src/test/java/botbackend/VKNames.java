@@ -1,12 +1,33 @@
 package botbackend;
 
 public enum VKNames {
-    NAUKA_I_TECHNICA, FIVE_UMNUCH_MUSLEY, TEST_GROUP, NOVIY_RAP, FOURCH;
+
+    POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS,
+    MUSICA, PUTESHESTVIJA, SPORT, SHOW_BUSINESS, ZDOROVIE,
+    CULTURA, FIVE_UMNUCH_MUSLEY, TEST_GROUP, NOVIY_RAP, FOURCH;
 
     public int ID(){
         switch (name()){
+            case "POLITICS":
+                return 20648295;
+            case "KINO":
+                return 108468;
             case "NAUKA_I_TECHNICA":
                 return 31976785;
+            case "CORPORATIONS_I_FIRMS":
+                return 34168005;
+            case "MUSICA":
+                return 34384434;
+            case "PUTESHESTVIJA":
+                return 24565142;
+            case "SPORT":
+                return 19342584;
+            case "SHOW_BUSINESS":
+                return 151660297;
+            case "ZDOROVIE":
+                return 38094239;
+            case "CULTURA":
+                return 46598842;
             case "FIVE_UMNUCH_MUSLEY":
                 return 24713873;
             case "TEST_GROUP":

@@ -7,6 +7,7 @@ import com.vk.api.sdk.objects.base.Link;
 import com.vk.api.sdk.objects.photos.Photo;
 import com.vk.api.sdk.objects.wall.WallPostFull;
 import com.vk.api.sdk.objects.wall.WallpostAttachment;
+import com.vk.api.sdk.queries.users.UserField;
 import com.vk.api.sdk.queries.wall.WallGetFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class VKNewsRequest {
     private ServiceActor serviceActor;
     private Integer clientid;
     private String servisetoken;
-    private HashMap<VKNames, Long> lastTime;
+    private HashMap<VKNames, Integer> lastTime;
 
 
     public VKNewsRequest(){
@@ -43,53 +44,73 @@ public class VKNewsRequest {
         Long currentTime = System.currentTimeMillis() / 1000L;
         lastTime = new HashMap<>();
         for(VKNames vkNames : VKNames.values()){
-            lastTime.put(vkNames, currentTime - 86400); //делаем последнее время = день
+            lastTime.put(vkNames, Math.toIntExact(currentTime - 86400)); //делаем последнее время = день
         }
     }
 
     public ArrayList<News> getVKNews(VKNames vkNames, int percentzip, int maxcount) throws Exception{
         ArrayList<News> result = new ArrayList<>();
 
+        if(maxcount <= 0){
+            return result;
+        }
+
+        Integer lastPostTime = lastTime.get(vkNames);
         List<WallPostFull> list;
         list = vk.wall().get(serviceActor).
                 ownerId(-vkNames.ID()).
-                count(maxcount).
+                count(maxcount+1).
                 filter(WallGetFilter.OWNER).
                 execute().getItems();
         for(WallPostFull post : list){
-            if(post.getDate() > lastTime.get(vkNames)){
+            if(post.getDate() > lastPostTime){
+                String linkPost = "https://vk.com/wall-" +
+                        (-post.getOwnerId()) + "_" + post.getId();
                 String text;
                 Integer time;
                 String links = "";
                 ArrayList<BufferedImage> vkImages = null;
-                BufferedImage image = null;
                 text = post.getText();
                 time = post.getDate(); // Они держат время поста в int и лет через 15 он переполниться у них
                 List<WallpostAttachment> wallpostAttachments = post.getAttachments();
 
-                for(WallpostAttachment wallpostAttachment : wallpostAttachments){
-                    Link link = wallpostAttachment.getLink();
-                    if(link != null){
-                        links += link.getUrl() + "\n";
-                    }
+                if( wallpostAttachments != null) {
 
-                    Photo photo = wallpostAttachment.getPhoto();
-                    if(photo != null){
-                        if(vkImages == null){
-                            vkImages = new ArrayList<>();
-                            vkImages.add(takeBestPicture(photo));
+                    for (WallpostAttachment wallpostAttachment : wallpostAttachments) {
+                        Link link = wallpostAttachment.getLink();
+                        if (link != null) {
+                            links += link.getUrl() + "\n";
                         }
-                        else {
-                            vkImages.add(takeBestPicture(photo));
+
+                        Photo photo = wallpostAttachment.getPhoto();
+                        if (photo != null) {
+                            if (vkImages == null) {
+                                vkImages = new ArrayList<>();
+                                vkImages.add(takeBestPicture(photo));
+                            } else {
+                                vkImages.add(takeBestPicture(photo));
+                            }
                         }
                     }
                 }
-                if(vkImages != null){
-                    image = MethodsNews.createBigPicture(vkImages);
-                }
-                result.add(new News(text, image, links, time));
+                result.add(new News(linkPost, text, vkImages, links, time));
             }
         }
+        for(int i = 0; i < result.size(); i++){
+            Thread thread = result.get(i);
+            thread.start();
+        }
+
+        for(int i = 0; i < result.size(); i++){
+            Thread thread = result.get(i);
+            thread.join();
+        }
+
+        if(result.size() > 0){
+            lastPostTime = result.get(0).getTime();
+            lastTime.put(vkNames, lastPostTime);
+        }
+
         return result;
     }
 
