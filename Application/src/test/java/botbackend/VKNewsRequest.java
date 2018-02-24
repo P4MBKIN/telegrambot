@@ -38,7 +38,6 @@ public class VKNewsRequest {
         transportClient = new HttpTransportClient();
         vk = new VkApiClient(transportClient);
         serviceActor = new ServiceActor(clientid, servisetoken);
-        Long currentTime = System.currentTimeMillis() / 1000L;
         lastTime = new HashMap<>();
         for(VKNames vkNames : VKNames.values()){
             lastTime.put(vkNames, new HashSet<>()); //делаем последнее время = день
@@ -89,8 +88,11 @@ public class VKNewsRequest {
                         }
                     }
                 }
-                result.add(new News(linkPost, text, vkImages, links, time));
                 lastTime.get(vkNames).add(time);
+                if((vkImages == null) && (text.isEmpty())){
+                    continue;
+                }
+                result.add(new News(linkPost, text, vkImages, links, time));
             }
         }
         for(int i = 0; i < result.size(); i++){

@@ -1,5 +1,4 @@
 package botbackend;
-
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Update;
 import java.sql.*;
@@ -78,10 +77,10 @@ public class DataBase {
                     name += ";0";
                     break;
                 case "Yes":
-                    name += ";1";
+                    name += ";2";
                     break;
                 case "Maybe":
-                    name += ";2";
+                    name += ";1";
                     break;
                 default:
                     System.out.println("Unhandle exc");
