@@ -73,13 +73,13 @@ public class DataBase {
         }
         switch (data.getData().split(" ")[0]) {
             case "No":
-                name += ";-1";
+                name += ";0";
                 break;
             case "Yes":
                 name += ";1";
                 break;
             case "Maybe":
-                name += ";0";
+                name += ";2";
                 break;
                 default:
                     System.out.println("Unhandle exc");

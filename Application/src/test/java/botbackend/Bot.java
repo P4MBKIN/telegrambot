@@ -1,6 +1,6 @@
 package botbackend;
 
-import javafx.util.Pair;
+
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
@@ -20,9 +20,10 @@ import static botbackend.VKNames.*;
 
 public class Bot extends TelegramLongPollingBot{
     List<String> Question = new ArrayList<>();
-    Hashtable<Long, VKNewsRequest> usersChoice = new Hashtable<>(0);
+    Hashtable<Long, NewsApi> usersChoice = new Hashtable<>(0);
     Hashtable<Long, Integer> userChoicenumber = new Hashtable<>(0);
     VKNames[] arr = {POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS, MUSICA, PUTESHESTVIJA, SPORT};
+    RSSNames[] arr1 = {RSSNames.POLITICS, RSSNames.KINO, RSSNames.NAUKA_I_TECHNICA, RSSNames.CORPORATIONS_I_FIRMS, RSSNames.MUSICA, RSSNames.PUTESHESTVIJA, RSSNames.SPORT};
 
     @Override
     public String getBotUsername() {
@@ -166,9 +167,11 @@ public class Bot extends TelegramLongPollingBot{
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        if (number <= userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()) && number < Question.size()) {
-            userChoicenumber.put(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId())+1);
-            setQues(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()));
+        if (number < Question.size()) {
+            if (number == userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId())) {
+                userChoicenumber.put(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()) + 1);
+                setQues(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()));
+            }
         }
         else {
             SendMessage message = new SendMessage()
@@ -204,26 +207,30 @@ public class Bot extends TelegramLongPollingBot{
     void sendNews(Update update){
         try {
             if (update.getMessage().getText().equals("Обновить новости")) {
-                VKNewsRequest tmp = usersChoice.get(update.getMessage().getChatId());
+                VKNewsRequest tmp = usersChoice.get(update.getMessage().getChatId()).vk;
+                RSSNewsRequest rss = usersChoice.get(update.getMessage().getChatId()).rss;
                 try {
                     String[] interests = DataBase.getInterest(update.getMessage().getChatId()).split(";");
                     ArrayList<News> news = new ArrayList<>(0);
                     for(int i = 0; i < interests.length-1;i++)
-                        if (interests[i].equals("1"))
+                        if (interests[i].equals("2")){
                             news.addAll(tmp.getVKNews(arr[i], 100, 4));
+                            news.addAll(rss.getRSSNews(arr1[i],100,4));}
                         else
-                            if (interests[i].equals("0"))
+                            if (interests[i].equals("1"))
                                 news.addAll(tmp.getVKNews(arr[i], 100, 2));
                     UpdateNewsToChatId(news, update.getMessage().getChatId());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             } else
-            if(update.getMessage().getText().equals("settings")){}
+            if(update.getMessage().getText().equals("settings")){
+
+            }
             else{
                 try {
                     if (DataBase.getAllChatId().indexOf(update.getMessage().getChatId()) == -1) {
-                        usersChoice.put(update.getMessage().getChatId(), new VKNewsRequest());
+                        usersChoice.put(update.getMessage().getChatId(), new NewsApi(new VKNewsRequest(), new RSSNewsRequest()));
                         userChoicenumber.put(update.getMessage().getChatId(), 0);
                         setQues(update.getMessage().getChatId(), 0);
                         DataBase.WriteDB(update);

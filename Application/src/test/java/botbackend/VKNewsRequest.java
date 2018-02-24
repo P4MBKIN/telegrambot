@@ -31,7 +31,7 @@ public class VKNewsRequest {
     private ServiceActor serviceActor;
     private Integer clientid;
     private String servisetoken;
-    private HashMap<VKNames, Long> lastTime;
+    private HashMap<VKNames, Integer> lastTime;
 
 
     public VKNewsRequest(){
@@ -44,7 +44,7 @@ public class VKNewsRequest {
         Long currentTime = System.currentTimeMillis() / 1000L;
         lastTime = new HashMap<>();
         for(VKNames vkNames : VKNames.values()){
-            lastTime.put(vkNames, currentTime - 86400); //делаем последнее время = день
+            lastTime.put(vkNames, Math.toIntExact(currentTime - 86400)); //делаем последнее время = день
         }
     }
 
@@ -55,14 +55,15 @@ public class VKNewsRequest {
             return result;
         }
 
+        Integer lastPostTime = lastTime.get(vkNames);
         List<WallPostFull> list;
         list = vk.wall().get(serviceActor).
                 ownerId(-vkNames.ID()).
-                count(maxcount).
+                count(maxcount+1).
                 filter(WallGetFilter.OWNER).
                 execute().getItems();
         for(WallPostFull post : list){
-            if(post.getDate() > lastTime.get(vkNames)){
+            if(post.getDate() > lastPostTime){
                 String linkPost = "https://vk.com/wall-" +
                         (-post.getOwnerId()) + "_" + post.getId();
                 String text;
@@ -103,6 +104,11 @@ public class VKNewsRequest {
         for(int i = 0; i < result.size(); i++){
             Thread thread = result.get(i);
             thread.join();
+        }
+
+        if(result.size() > 0){
+            lastPostTime = result.get(0).getTime();
+            lastTime.put(vkNames, lastPostTime);
         }
 
         return result;
