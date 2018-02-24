@@ -35,6 +35,7 @@ public class RSSNewsRequest {
         }
 
         Integer lastPostTime = lastTime.get(rssNames);
+        Integer maxPostTime = lastTime.get(rssNames);
         SyndFeed syndFeed = new SyndFeedInput().build(new XmlReader(new URL(rssNames.ID())));
         List<SyndEntry> list = syndFeed.getEntries();
         int iter = 0;
@@ -57,6 +58,9 @@ public class RSSNewsRequest {
                 }
                 text = text.replaceAll("&quot;", "\"");
                 result.add(new News(linkFeed, text, null, links, time));
+                if(maxPostTime < time){
+                    maxPostTime = time;
+                }
             }
             if(++iter >= maxcount)
                 break;
@@ -73,8 +77,7 @@ public class RSSNewsRequest {
         }
 
         if(result.size() > 0){
-            lastPostTime = result.get(0).getTime();
-            lastTime.put(rssNames, lastPostTime);
+            lastTime.put(rssNames, maxPostTime);
         }
         return result;
     }

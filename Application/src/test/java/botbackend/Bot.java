@@ -167,7 +167,7 @@ public class Bot extends TelegramLongPollingBot{
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        if (number < Question.size()) {
+        if (number < Question.size()-1) {
             if (number == userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId())) {
                 userChoicenumber.put(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()) + 1);
                 setQues(update.getCallbackQuery().getMessage().getChatId(), userChoicenumber.get(update.getCallbackQuery().getMessage().getChatId()));
@@ -214,11 +214,12 @@ public class Bot extends TelegramLongPollingBot{
                     ArrayList<News> news = new ArrayList<>(0);
                     for(int i = 0; i < interests.length-1;i++)
                         if (interests[i].equals("2")){
-                            news.addAll(tmp.getVKNews(arr[i], 100, 4));
-                            news.addAll(rss.getRSSNews(arr1[i],100,4));}
+                            news.addAll(tmp.getVKNews(arr[i], 100, 6));
+                            news.addAll(rss.getRSSNews(arr1[i],100,6));}
                         else
-                            if (interests[i].equals("1"))
-                                news.addAll(tmp.getVKNews(arr[i], 100, 2));
+                            if (interests[i].equals("1")){
+                                news.addAll(tmp.getVKNews(arr[i], 100, 3));
+                                news.addAll(rss.getRSSNews(arr1[i],100,3));}
                     UpdateNewsToChatId(news, update.getMessage().getChatId());
                 } catch (Exception ex) {
                     ex.printStackTrace();
