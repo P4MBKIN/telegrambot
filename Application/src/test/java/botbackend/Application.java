@@ -10,22 +10,22 @@ public class Application {
 
     public static void main(String[] args) throws Exception {
 
-        RSSNewsRequest tmp1 = new RSSNewsRequest();
+        RSSNewsRequest tmp = new RSSNewsRequest();
+
+        ArrayList<News> allNews = tmp.getRSSNews(RSSNames.SPORT, 100, 10);
+        System.out.println("CountNews = " + allNews.size());
+        ArrayList<News> allNews2 = tmp.getRSSNews(RSSNames.SPORT, 100, 10);
+        System.out.println("CountNews = " + allNews2.size());
+
+        /*RSSNewsRequest tmp1 = new RSSNewsRequest();
         ArrayList<News> allNews = tmp1.getRSSNews(RSSNames.ZDOROVIE, 100, 5);
         System.out.println("CountNews = " + allNews.size());
         for(int i = 0; i < allNews.size(); i++) {
             allNews.get(i).writeNews("Test" + (i + 1), "");
         }
+*/
 
 
-        /*VKNewsRequest tmp = new VKNewsRequest();
-
-        ArrayList<News> allNews = tmp.getVKNews(VKNames.CULTURA, 100, 40);
-
-        System.out.println("CountNews = " + allNews.size());
-        for(int i = 0; i < allNews.size(); i++){
-            allNews.get(i).writeNews("Test"+ (i+1), "");
-        }*/
 
 
         //VKNewsRequest tmp = new VKNewsRequest();

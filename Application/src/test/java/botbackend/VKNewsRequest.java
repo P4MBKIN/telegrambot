@@ -56,10 +56,11 @@ public class VKNewsRequest {
         }
 
         Integer lastPostTime = lastTime.get(vkNames);
+        Integer maxPostTime = lastTime.get(vkNames);
         List<WallPostFull> list;
         list = vk.wall().get(serviceActor).
                 ownerId(-vkNames.ID()).
-                count(maxcount+1).
+                count(maxcount).
                 filter(WallGetFilter.OWNER).
                 execute().getItems();
         for(WallPostFull post : list){
@@ -71,7 +72,7 @@ public class VKNewsRequest {
                 String links = "";
                 ArrayList<BufferedImage> vkImages = null;
                 text = post.getText();
-                time = post.getDate(); // Они держат время поста в int и лет через 15 он переполниться у них
+                time = post.getDate();
                 List<WallpostAttachment> wallpostAttachments = post.getAttachments();
 
                 if( wallpostAttachments != null) {
@@ -94,6 +95,9 @@ public class VKNewsRequest {
                     }
                 }
                 result.add(new News(linkPost, text, vkImages, links, time));
+                if(maxPostTime < time){
+                    maxPostTime = time;
+                }
             }
         }
         for(int i = 0; i < result.size(); i++){
@@ -107,8 +111,7 @@ public class VKNewsRequest {
         }
 
         if(result.size() > 0){
-            lastPostTime = result.get(0).getTime();
-            lastTime.put(vkNames, lastPostTime);
+            lastTime.put(vkNames, maxPostTime);
         }
 
         return result;
