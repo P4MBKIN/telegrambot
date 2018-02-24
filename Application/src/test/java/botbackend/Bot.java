@@ -41,22 +41,35 @@ public class Bot extends TelegramLongPollingBot{
      * @param chatId номер чата
      */
     public void UpdateNewsToChatId(ArrayList<News> news, Long chatId) {
-        for (int j = 0; j < news.size(); j++) {
-            System.out.println(news.size() + "allo");
-            try {
-                BufferedImage img = news.get(j).getAllNewsPicture();
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(img, "jpg", os);
-                InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-                SendPhoto photo = new SendPhoto()
-                        .setChatId(chatId)
-                        .setNewPhoto("newnews", is)
-                        .setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
-
-                sendPhoto(photo);
-            } catch (Exception ex) {
+        if (news.size() == 0 || news == null)
+        {
+            SendMessage mess = new SendMessage()
+                    .setChatId(chatId)
+                    .setText("Нет доступных новостей");
+            try{
+                execute(mess);
+            }catch (Exception ex){
                 ex.printStackTrace();
+            }
+        }
+        else {
+            for (int j = 0; j < news.size(); j++) {
+                System.out.println(news.size() + "allo");
+                try {
+                    BufferedImage img = news.get(j).getAllNewsPicture();
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ImageIO.write(img, "jpg", os);
+                    InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+                    SendPhoto photo = new SendPhoto()
+                            .setChatId(chatId)
+                            .setNewPhoto("newnews", is)
+                            .setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
+
+                    sendPhoto(photo);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -225,7 +238,7 @@ public class Bot extends TelegramLongPollingBot{
                     ex.printStackTrace();
                 }
             } else
-            if(update.getMessage().getText().equals("settings")){
+            if(update.getMessage().getText().equals("Настройки")){
 
             }
             else{
