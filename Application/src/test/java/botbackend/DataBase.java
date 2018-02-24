@@ -53,7 +53,7 @@ public class DataBase {
             String name = "";
             Integer number = update.getMessage().getChatId().intValue();
             if (name != null && number!=null)
-                    statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name + "','" + number +"')");
+                statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name + "','" + number +"')");
         }catch (Exception ex){
             ex.printStackTrace();
         }
@@ -71,32 +71,32 @@ public class DataBase {
             id = resSet.getInt("tgid");
             name = resSet.getString("name");
         }
-        switch (data.getData().split(" ")[0]) {
-            case "No":
-                name += ";-1";
-                break;
-            case "Yes":
-                name += ";1";
-                break;
-            case "Maybe":
-                name += ";0";
-                break;
+        if (name.length() < Integer.parseInt(data.getData().split(" ")[1])*2 + 1) {
+            switch (data.getData().split(" ")[0]) {
+                case "No":
+                    name += ";0";
+                    break;
+                case "Yes":
+                    name += ";1";
+                    break;
+                case "Maybe":
+                    name += ";2";
+                    break;
                 default:
                     System.out.println("Unhandle exc");
                     break;
 
-        }
-        try
-        {
-            Integer number = chatId.intValue();
-            if (name != null && number!=null)
-            {
-                statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name +"','" + number +"')");
             }
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
 
+            try {
+                Integer number = chatId.intValue();
+                if (name != null && number != null) {
+                    statmt.execute("INSERT OR REPLACE INTO 'users' ('name', 'tgid') VALUES ('" + name + "','" + number + "')");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     public static String getInterest(Long chatId) throws Exception{

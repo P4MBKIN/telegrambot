@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.sun.syndication.feed.synd.SyndContent;
@@ -17,13 +18,12 @@ import com.sun.syndication.io.XmlReader;
 
 public class RSSNewsRequest {
 
-    private HashMap<RSSNames, Integer> lastTime;
+    private HashMap<RSSNames, HashSet<Integer>> lastTime;
 
     public RSSNewsRequest(){
-        Long currentTime = System.currentTimeMillis() / 1000L;
         lastTime = new HashMap<>();
         for(RSSNames rssNames : RSSNames.values()){
-            lastTime.put(rssNames, Math.toIntExact(currentTime - 86400)); //делаем последнее время = день
+            lastTime.put(rssNames, new HashSet<>());
         }
     }
 
@@ -34,14 +34,13 @@ public class RSSNewsRequest {
             return result;
         }
 
-        Integer lastPostTime = lastTime.get(rssNames);
-        Integer maxPostTime = lastTime.get(rssNames);
+
         SyndFeed syndFeed = new SyndFeedInput().build(new XmlReader(new URL(rssNames.ID())));
         List<SyndEntry> list = syndFeed.getEntries();
         int iter = 0;
         for(SyndEntry feed : list){
             Integer time = Math.toIntExact(feed.getPublishedDate().getTime() / 1000L);
-            if(time > lastPostTime){
+            if(!lastTime.get(rssNames).contains(time)){
                 String linkFeed = feed.getLink();
                 String text = "";
                 if(!feed.getAuthor().isEmpty()){
@@ -58,9 +57,7 @@ public class RSSNewsRequest {
                 }
                 text = text.replaceAll("&quot;", "\"");
                 result.add(new News(linkFeed, text, null, links, time));
-                if(maxPostTime < time){
-                    maxPostTime = time;
-                }
+                lastTime.get(rssNames).add(time);
             }
             if(++iter >= maxcount)
                 break;
@@ -76,9 +73,6 @@ public class RSSNewsRequest {
             thread.join();
         }
 
-        if(result.size() > 0){
-            lastTime.put(rssNames, maxPostTime);
-        }
         return result;
     }
 

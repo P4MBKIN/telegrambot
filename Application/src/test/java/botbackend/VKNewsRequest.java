@@ -17,10 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class VKNewsRequest {
 
@@ -31,7 +28,7 @@ public class VKNewsRequest {
     private ServiceActor serviceActor;
     private Integer clientid;
     private String servisetoken;
-    private HashMap<VKNames, Integer> lastTime;
+    private HashMap<VKNames, HashSet<Integer>> lastTime;
 
 
     public VKNewsRequest(){
@@ -44,7 +41,7 @@ public class VKNewsRequest {
         Long currentTime = System.currentTimeMillis() / 1000L;
         lastTime = new HashMap<>();
         for(VKNames vkNames : VKNames.values()){
-            lastTime.put(vkNames, Math.toIntExact(currentTime - 86400)); //делаем последнее время = день
+            lastTime.put(vkNames, new HashSet<>()); //делаем последнее время = день
         }
     }
 
@@ -55,8 +52,6 @@ public class VKNewsRequest {
             return result;
         }
 
-        Integer lastPostTime = lastTime.get(vkNames);
-        Integer maxPostTime = lastTime.get(vkNames);
         List<WallPostFull> list;
         list = vk.wall().get(serviceActor).
                 ownerId(-vkNames.ID()).
@@ -64,11 +59,11 @@ public class VKNewsRequest {
                 filter(WallGetFilter.OWNER).
                 execute().getItems();
         for(WallPostFull post : list){
-            if(post.getDate() > lastPostTime){
+            Integer time = post.getDate();
+            if(!lastTime.get(vkNames).contains(time)){
                 String linkPost = "https://vk.com/wall-" +
                         (-post.getOwnerId()) + "_" + post.getId();
                 String text;
-                Integer time;
                 String links = "";
                 ArrayList<BufferedImage> vkImages = null;
                 text = post.getText();
@@ -95,9 +90,7 @@ public class VKNewsRequest {
                     }
                 }
                 result.add(new News(linkPost, text, vkImages, links, time));
-                if(maxPostTime < time){
-                    maxPostTime = time;
-                }
+                lastTime.get(vkNames).add(time);
             }
         }
         for(int i = 0; i < result.size(); i++){
@@ -108,10 +101,6 @@ public class VKNewsRequest {
         for(int i = 0; i < result.size(); i++){
             Thread thread = result.get(i);
             thread.join();
-        }
-
-        if(result.size() > 0){
-            lastTime.put(vkNames, maxPostTime);
         }
 
         return result;
