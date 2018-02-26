@@ -27,6 +27,14 @@ public class RSSNewsRequest {
         }
     }
 
+    /**
+     * Получения набора новстей по определенной теме
+     * @param rssNames
+     * @param percentzip
+     * @param maxcount
+     * @return
+     * @throws Exception
+     */
     public ArrayList<News> getRSSNews(RSSNames rssNames, int percentzip, int maxcount) throws Exception {
         ArrayList<News> result = new ArrayList<>();
 

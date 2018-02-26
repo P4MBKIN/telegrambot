@@ -9,6 +9,11 @@ import java.util.List;
 
 public class MethodsNews {
 
+    /**
+     * Слияние нескольких изображений в одно
+     * @param arrImages
+     * @return
+     */
     public static BufferedImage createBigPicture(ArrayList<BufferedImage> arrImages){
         int width = 0;
         int height = 0;
@@ -39,6 +44,13 @@ public class MethodsNews {
         return bigPicture;
     }
 
+    /**
+     * Изменение размера изображения
+     * @param img
+     * @param newW
+     * @param newH
+     * @return
+     */
     public static BufferedImage resizePicture(BufferedImage img, int newW, int newH){
         Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
         BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
@@ -50,6 +62,13 @@ public class MethodsNews {
         return dimg;
     }
 
+    /**
+     * Создание изображения включающего текст
+     * @param bufferedPicture
+     * @param text
+     * @param color
+     * @return
+     */
     public static BufferedImage addTextToPicture(BufferedImage bufferedPicture,
                                                  String text, Color color){
 
@@ -111,6 +130,15 @@ public class MethodsNews {
         }
     }
 
+    /**
+     * Построчное добавление текста на изображение
+     * @param bufferedImage
+     * @param text
+     * @param topX
+     * @param topY
+     * @param font
+     * @param color
+     */
     private static void addLineToImage(BufferedImage bufferedImage,
                                        String text,
                                        int topX, int topY,

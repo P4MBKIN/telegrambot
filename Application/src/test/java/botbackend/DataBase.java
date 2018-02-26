@@ -85,7 +85,6 @@ public class DataBase {
                 default:
                     System.out.println("Unhandle exc");
                     break;
-
             }
 
             try {

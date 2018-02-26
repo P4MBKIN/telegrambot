@@ -4,11 +4,9 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-
 public class Application {
 
     public static void main(String[] args) throws Exception {
-
         ApiContextInitializer.init();
         DataBase.Conn();
         DataBase.CreateDB();
@@ -19,6 +17,5 @@ public class Application {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-
     }
 }

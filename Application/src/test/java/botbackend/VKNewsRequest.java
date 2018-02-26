@@ -44,6 +44,14 @@ public class VKNewsRequest {
         }
     }
 
+    /**
+     * Получение набора новостей по определенной теме
+     * @param vkNames
+     * @param percentzip
+     * @param maxcount
+     * @return
+     * @throws Exception
+     */
     public ArrayList<News> getVKNews(VKNames vkNames, int percentzip, int maxcount) throws Exception{
         ArrayList<News> result = new ArrayList<>();
 
@@ -108,6 +116,12 @@ public class VKNewsRequest {
         return result;
     }
 
+    /**
+     * Получение лучшего по качеству изображения из сети
+     * @param photo
+     * @return
+     * @throws Exception
+     */
     private BufferedImage takeBestPicture(Photo photo) throws Exception{
         BufferedImage image;
         URL url;

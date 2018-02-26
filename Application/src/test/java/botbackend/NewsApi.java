@@ -1,7 +1,6 @@
 package botbackend;
 
 public class NewsApi {
-
     public VKNewsRequest vk;
     public RSSNewsRequest rss;
 

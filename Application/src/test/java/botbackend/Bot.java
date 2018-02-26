@@ -1,5 +1,6 @@
 package botbackend;
 
+
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
@@ -40,35 +41,22 @@ public class Bot extends TelegramLongPollingBot{
      * @param chatId номер чата
      */
     public void UpdateNewsToChatId(ArrayList<News> news, Long chatId) {
-        if (news.size() == 0 || news == null)
-        {
-            SendMessage mess = new SendMessage()
-                    .setChatId(chatId)
-                    .setText("Нет доступных новостей");
-            try{
-                execute(mess);
-            }catch (Exception ex){
+        for (int j = 0; j < news.size(); j++) {
+            System.out.println(news.size() + "allo");
+            try {
+                BufferedImage img = news.get(j).getAllNewsPicture();
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(img, "jpg", os);
+                InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+                SendPhoto photo = new SendPhoto()
+                        .setChatId(chatId)
+                        .setNewPhoto("newnews", is)
+                        .setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
+
+                sendPhoto(photo);
+            } catch (Exception ex) {
                 ex.printStackTrace();
-            }
-        }
-        else {
-            for (int j = 0; j < news.size(); j++) {
-                System.out.println(news.size() + "allo");
-                try {
-                    BufferedImage img = news.get(j).getAllNewsPicture();
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    ImageIO.write(img, "jpg", os);
-                    InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-                    SendPhoto photo = new SendPhoto()
-                            .setChatId(chatId)
-                            .setNewPhoto("newnews", is)
-                            .setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
-
-                    sendPhoto(photo);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
             }
         }
     }
@@ -223,8 +211,6 @@ public class Bot extends TelegramLongPollingBot{
                 RSSNewsRequest rss = usersChoice.get(update.getMessage().getChatId()).rss;
                 try {
                     String[] interests = DataBase.getInterest(update.getMessage().getChatId()).split(";");
-                    for(int i = 0; i < interests.length;i++)
-                        System.out.println(interests[i]);
                     ArrayList<News> news = new ArrayList<>(0);
                     for(int i = 1; i < interests.length;i++)
                         if (interests[i].equals("2")){
@@ -239,7 +225,7 @@ public class Bot extends TelegramLongPollingBot{
                     ex.printStackTrace();
                 }
             } else
-            if(update.getMessage().getText().equals("Настройки")){
+            if(update.getMessage().getText().equals("settings")){
 
             }
             else{
