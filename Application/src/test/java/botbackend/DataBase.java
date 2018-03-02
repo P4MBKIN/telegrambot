@@ -13,26 +13,34 @@ public class DataBase {
     public static Statement statmt;
     public static ResultSet resSet;
 
-    // --------ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ--------
+    /**
+     * Подключает базу жанных
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void Conn() throws ClassNotFoundException, SQLException
     {
         conn = null;
         Class.forName("org.sqlite.JDBC");
         conn = DriverManager.getConnection("jdbc:sqlite:newbd.s3db");
-
-        System.out.println("База Подключена!");
     }
 
-    // --------Создание таблицы--------
+    /**
+     * Создает таблицу
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void CreateDB() throws ClassNotFoundException, SQLException
     {
         statmt = conn.createStatement();
         statmt.execute("CREATE TABLE if not exists 'users' ('name' text, 'tgid' INT PRIMARY KEY);");
-
-        System.out.println("Таблица создана или уже существует.");
     }
 
-    //Возвращает список id в базе данных
+    /**
+     * Возвращает список всех chatId, хранящихся в базе данных
+     * @return
+     * @throws Exception
+     */
     public static List<Integer> getAllChatId() throws Exception{
         List<Integer> ids = new ArrayList<>(0);
         resSet = statmt.executeQuery("SELECT * FROM users");
@@ -45,7 +53,11 @@ public class DataBase {
         return ids;
     }
 
-    // --------Заполнение таблицы--------
+    /**
+     * Заполняет таблицу информацией из update
+     * @param update
+     * @throws SQLException
+     */
     public static void WriteDB(Update update) throws SQLException
     {
         try
@@ -57,12 +69,16 @@ public class DataBase {
         }catch (Exception ex){
             ex.printStackTrace();
         }
-
-        System.out.println("Таблица заполнена");
     }
 
+    /**
+     * Заносит информацию об ответе на вопрос в базу данных
+     * @param chatId
+     * @param data
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void setInfoIntoDatabase(Long chatId, CallbackQuery data)throws ClassNotFoundException, SQLException{
-        System.out.println("allo");
         resSet = statmt.executeQuery("SELECT * FROM users");
         int id = -1;
         String name = "";
@@ -98,6 +114,12 @@ public class DataBase {
         }
     }
 
+    /**
+     * Возвращает информацию об опросе из базы данных
+     * @param chatId
+     * @return
+     * @throws Exception
+     */
     public static String getInterest(Long chatId) throws Exception{
         resSet = statmt.executeQuery("SELECT * FROM users");
         String name = "";
@@ -111,7 +133,11 @@ public class DataBase {
         return name;
     }
 
-    // -------- Вывод таблицы--------
+    /**
+     * ывод всей информации, хранящейся в базе данных
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void ReadDB() throws ClassNotFoundException, SQLException
     {
         resSet = statmt.executeQuery("SELECT * FROM users");
@@ -124,18 +150,17 @@ public class DataBase {
             System.out.println( "tgid = " + tgid );
             System.out.println();
         }
-
-        System.out.println("Таблица выведена");
     }
 
-    // --------Закрытие--------
+    /**
+     * Закрытие базы данных
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void CloseDB() throws ClassNotFoundException, SQLException
     {
         conn.close();
         statmt.close();
         resSet.close();
-
-        System.out.println("Соединения закрыты");
     }
-
 }

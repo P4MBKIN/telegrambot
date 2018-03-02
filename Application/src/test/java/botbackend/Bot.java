@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import static botbackend.VKNames.*;
@@ -22,8 +23,11 @@ public class Bot extends TelegramLongPollingBot{
     List<String> Question = new ArrayList<>();
     Hashtable<Long, NewsApi> usersChoice = new Hashtable<>(0);
     Hashtable<Long, Integer> userChoicenumber = new Hashtable<>(0);
-    VKNames[] arr = {POLITICS, KINO, NAUKA_I_TECHNICA, CORPORATIONS_I_FIRMS, MUSICA, PUTESHESTVIJA, SPORT};
-    RSSNames[] arr1 = {RSSNames.POLITICS, RSSNames.KINO, RSSNames.NAUKA_I_TECHNICA, RSSNames.CORPORATIONS_I_FIRMS, RSSNames.MUSICA, RSSNames.PUTESHESTVIJA, RSSNames.SPORT};
+    VKNames[] arr = VKNames.values();
+    RSSNames[] arr1 = RSSNames.values();
+    int MAX_SIZE = 4;
+
+
 
     @Override
     public String getBotUsername() {
@@ -32,7 +36,24 @@ public class Bot extends TelegramLongPollingBot{
 
     @Override
     public String getBotToken() {
-        return "531412915:AAGIMCbWWt7kL-AtOTf5IuA4IWOFjrKdnWM";
+        return "567194667:AAF5s9I4Fo7khWgJehzfmq5tu-yGn90fv_o";
+    }
+
+    /**
+     * Метод приводящий BufferedImage к InputStream
+     * @param img
+     * @return
+     */
+    InputStream buffImgIntoInputStream(BufferedImage img){
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(img, "jpg", os);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            return is;
+        }catch (IOException ex){
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -42,18 +63,11 @@ public class Bot extends TelegramLongPollingBot{
      */
     public void UpdateNewsToChatId(ArrayList<News> news, Long chatId) {
         for (int j = 0; j < news.size(); j++) {
-            System.out.println(news.size() + "allo");
             try {
-                BufferedImage img = news.get(j).getAllNewsPicture();
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(img, "jpg", os);
-                InputStream is = new ByteArrayInputStream(os.toByteArray());
-
                 SendPhoto photo = new SendPhoto()
                         .setChatId(chatId)
-                        .setNewPhoto("newnews", is)
+                        .setNewPhoto("newnews", buffImgIntoInputStream(news.get(j).getAllNewsPicture()))
                         .setReplyMarkup(createKeyboard(news.get(j).getLinkPost()));
-
                 sendPhoto(photo);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -84,23 +98,17 @@ public class Bot extends TelegramLongPollingBot{
      * Конструктор
      */
     public Bot(){
-        VKNewsRequest a = new VKNewsRequest();
-        try {
-            System.out.println(a.getVKNews(VKNames.NAUKA_I_TECHNICA, 100, 4).size());
-            System.out.println(a.getVKNews(VKNames.NAUKA_I_TECHNICA, 100, 4).size());
-            System.out.println(a.getVKNews(VKNames.NAUKA_I_TECHNICA, 100, 4).size());
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-        System.out.println("adsgasdgdsagdsg");
         Question.add("Интересуетесь ли вы политикой?");
         Question.add("Нравится ли вам кино?");
-        Question.add("Нравится ли вам наука и техника?");
-        Question.add("Интересуетесь ли вы бизнесом и компаниями?");
+        Question.add("Интересна ли вам наука и техника?");
+        Question.add("Хотели бы вы читать о бизнесе и компаниях?");
         Question.add("Интересуетесь ли вы музыкой?");
-        Question.add("Интересуетесь ли вы путешествиями?");
-        Question.add("Интересуетесь ли вы спортом?");
-
+        Question.add("Интересны ли вам путешествиями?");
+        Question.add("Хотите ли вы видеть новости о спорте?");
+        Question.add("Интересуетесь ли вы шоубизнесом?");
+        Question.add("Хотите узнать больше о здоровье?");
+        Question.add("Интересны ли вам новости о культуре?");
+        Question.add("Хотите ли вы видеть новости о спорте?");
     }
 
     /**
@@ -209,24 +217,33 @@ public class Bot extends TelegramLongPollingBot{
             if (update.getMessage().getText().equals("Обновить новости")) {
                 VKNewsRequest tmp = usersChoice.get(update.getMessage().getChatId()).vk;
                 RSSNewsRequest rss = usersChoice.get(update.getMessage().getChatId()).rss;
+                int k = usersChoice.get(update.getMessage().getChatId()).koef;
                 try {
                     String[] interests = DataBase.getInterest(update.getMessage().getChatId()).split(";");
                     ArrayList<News> news = new ArrayList<>(0);
                     for(int i = 1; i < interests.length;i++)
                         if (interests[i].equals("2")){
-                            news.addAll(tmp.getVKNews(arr[i-1], 100, 6));
-                            news.addAll(rss.getRSSNews(arr1[i-1],100,6));}
+                            news.addAll(tmp.getVKNews(arr[i-1], 100, MAX_SIZE*k));
+                            news.addAll(rss.getRSSNews(arr1[i-1],100,MAX_SIZE*k));}
                         else
                         if (interests[i].equals("1")){
-                            news.addAll(tmp.getVKNews(arr[i-1], 100, 3));
-                            news.addAll(rss.getRSSNews(arr1[i-1],100,3));}
+                            news.addAll(tmp.getVKNews(arr[i-1], 100, ((MAX_SIZE)/2)*k));
+                            news.addAll(rss.getRSSNews(arr1[i-1],100,((MAX_SIZE)/2)*k));}
+                    usersChoice.get(update.getMessage().getChatId()).koef++;
                     UpdateNewsToChatId(news, update.getMessage().getChatId());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             } else
-            if(update.getMessage().getText().equals("settings")){
-
+            if(update.getMessage().getText().equals("Настройки")){
+                SendMessage mess = new SendMessage()
+                        .setText("allo")
+                        .setChatId(update.getMessage().getChatId());
+                try{
+                    execute(mess);
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
             }
             else{
                 try {
